@@ -40,7 +40,7 @@ int main(){
 	int N_size = 32;
 	double temp = 300.0;
 	int Cyc = 4000000;
-	int Jack_w = 200000;
+	int Jack_w = 2000;
 	int Jack_n = Cyc/Jack_w;
 	
 
@@ -79,7 +79,7 @@ int main(){
 			Jack_ave += Jack_w_array.at(j);
 		}
 		Jack_ave /= static_cast<double>(Jack_w);
-		cout << Jack_ave << endl;
+		//cout << Jack_ave << endl;
 		Jack_n_array.at(i) = Jack_ave;
 	}
 
@@ -98,16 +98,20 @@ int main(){
 	double Jack = -1.0;
 	double Jack_keisu = 1/(static_cast<double>(Jack_n)*static_cast<double>(Jack_n-1));
 	double Jack_sum = 0.0;
+	ofstream jack_txt("jack.dat");
 	for(int l=0;l<Jack_n;l++){
-		cout << pow((Jack_n_array.at(l)-res_ave),2.0) << endl;
+		jack_txt << l << " " <<Jack_n_array.at(l) << endl;
+		//cout << pow((Jack_n_array.at(l)-res_ave),2.0) << endl;
 		Jack_sum += pow((Jack_n_array.at(l)-res_ave),2.0);
 	}
-	cout << Jack_sum << endl;
+	//cout << Jack_sum << endl;
 	Jack = sqrt(Jack_keisu*Jack_sum);
 	cout << Jack << endl;
+	jack_txt << Jack << endl;
 	//debug_data << H << " " << res_ave << endl;
 
 	result.close();
+	jack_txt.close();
 
 	//debug_data.close();
 	//debug_system.close();
