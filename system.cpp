@@ -1,5 +1,6 @@
 #include "system.h"
 #include <random>
+#include <iostream>
 using namespace std;
 random_device seed_gen;
 mt19937_64 engine(seed_gen());
@@ -37,6 +38,11 @@ objSystem::objSystem(double h, double j, double T, int N)
 	:magneticH(h),interactionJ(j),systemSize(N),temperature(T){
 		this->spinsArray.assign(N,vector<SpinStruct>(N));
 		this->system_randomsetter();
+		cout << magneticH << endl;
+		cout << interactionJ << endl;
+		cout << systemSize*systemSize << endl;
+		cout << temperature << endl;
+		
 }
 
 void objSystem::system_randomsetter(){
@@ -59,9 +65,9 @@ void objSystem::gibbs_sampling(){
     int j = point_rand(engine);
     double E_plus = -99.0;
     double E_minus = -99.0;
-    this->spinsArray.at((i)).at(j).spinVector = 1;
+    this->spinsArray.at(i).at(j).spinVector = 1;
     E_plus = this->calculationEnergy();
-    this->spinsArray.at((i)).at(j).spinVector = -1;
+    this->spinsArray.at(i).at(j).spinVector = -1;
     E_minus = this->calculationEnergy();
     double RT = gas_const*(this->temperature); //mol毎のエネルギーを考えるのでボルツマン定数を気体定数にする. 
     double exp_plus = exp(-1.0*(E_plus/RT));
@@ -69,9 +75,9 @@ void objSystem::gibbs_sampling(){
     uniform_real_distribution<> sampling_rand(0.0,exp_plus+exp_minus);
     double sampling_num = sampling_rand(engine);
     if(0.0 <= sampling_num && sampling_num <= exp_plus){
-        this->spinsArray.at(i).at(j).spinVector = 1;
+        this->spinsArray.at((i)).at(j).spinVector = 1;
     }else {
-		this->spinsArray.at(i).at(j).spinVector = -1;
+		this->spinsArray.at((i)).at(j).spinVector = -1;
 	}
     return;
 }
