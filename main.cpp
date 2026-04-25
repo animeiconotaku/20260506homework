@@ -40,7 +40,7 @@ int main(){
 	int N_size = 32;
 	double temp = 300.0;
 	int Cyc = 4000000;
-	int Jack_w = 2000;
+	int Jack_w = -1;
 	int Jack_n = Cyc/Jack_w;
 	
 
@@ -65,22 +65,10 @@ int main(){
 	objSystem simulation_system(H,J_interact,temp,N_size);
 
 	vector<double> energy_step(Cyc,-1.0);
-	vector<double> Jack_w_array(Jack_w,-1.0);
-	vector<double> Jack_n_array(Jack_n,-1.0);
 
-	for(int i = 0; i < Jack_n; i++){
-		for(int j = 0; j < Jack_w;j++){
-			simulation_system.gibbs_sampling();
-			energy_step.at(i*Jack_w+j) = simulation_system.calculationEnergy();
-			Jack_w_array.at(j) = energy_step.at(i*Jack_w+j);
-		}
-		double Jack_ave = 0.0;
-		for(int j = 0; j < Jack_w;j++){
-			Jack_ave += Jack_w_array.at(j);
-		}
-		Jack_ave /= static_cast<double>(Jack_w);
-		//cout << Jack_ave << endl;
-		Jack_n_array.at(i) = Jack_ave;
+	for(int i = 0; i < Cyc; i++){
+		simulation_system.gibbs_sampling();
+		energy_step.at(i) = simulation_system.calculationEnergy();
 	}
 
 	double res_ave = 0.0;
@@ -95,21 +83,55 @@ int main(){
 
 	cout << res_ave << endl;
 
-	double Jack = -1.0;
-	double Jack_keisu = 1/(static_cast<double>(Jack_n)*static_cast<double>(Jack_n-1));
-	double Jack_sum = 0.0;
-	ofstream jack_txt("jack.dat");
-	for(int l=0;l<Jack_n;l++){
-		jack_txt << l << " " <<Jack_n_array.at(l) << endl;
-		//cout << pow((Jack_n_array.at(l)-res_ave),2.0) << endl;
-		Jack_sum += pow((Jack_n_array.at(l)-res_ave),2.0);
-	}
-	//cout << Jack_sum << endl;
-	Jack = sqrt(Jack_keisu*Jack_sum);
-	cout << Jack << endl;
-	jack_txt << Jack << endl;
-	//debug_data << H << " " << res_ave << endl;
+	vector<int> test_value(12,-1);
+	test_value.at(0) = 10000;
+	test_value.at(1) = 20000;
+	test_value.at(2) = 40000;
+	test_value.at(3) = 50000;
+	test_value.at(4) = 80000;
+	test_value.at(5) = 100000;
+	test_value.at(6) = 200000;
+	test_value.at(7) = 400000;
+	test_value.at(8) = 500000;
+	test_value.at(9) = 800000;
+	test_value.at(10) = 1000000;
+	test_value.at(11) = 2000000;
 
+	ofstream jack_txt("jack.dat");
+
+	for(int k = 0; k < 12; k++){
+		Jack_w = test_value.at(k);
+		int Jack_n = Cyc/Jack_w;
+		vector<double> Jack_w_array(Jack_w,-1.0);
+		vector<double> Jack_n_array(Jack_n,-1.0);
+		for(int i = 0; i < Jack_n; i++){
+			for(int j = 0; j < Jack_w;j++){
+				Jack_w_array.at(j) = energy_step.at(i*Jack_w+j);
+			}
+			double Jack_ave = 0.0;
+			for(int j = 0; j < Jack_w;j++){
+				Jack_ave += Jack_w_array.at(j);
+			}
+			Jack_ave /= static_cast<double>(Jack_w);
+			//cout << Jack_ave << endl;
+			Jack_n_array.at(i) = Jack_ave;
+		}
+		double Jack = -1.0;
+		double Jack_keisu = 1/(static_cast<double>(Jack_n)*static_cast<double>(Jack_n-1));
+		double Jack_sum = 0.0;
+	
+		for(int l=0;l<Jack_n;l++){
+			//jack_txt << l << " " <<Jack_n_array.at(l) << endl;
+			//cout << pow((Jack_n_array.at(l)-res_ave),2.0) << endl;
+			Jack_sum += pow((Jack_n_array.at(l)-res_ave),2.0);
+		}
+		//cout << Jack_sum << endl;
+		Jack = sqrt(Jack_keisu*Jack_sum);
+		cout << Jack_w << " " <<Jack << endl;
+		jack_txt << Jack_w << " " <<Jack << endl;
+		//debug_data << H << " " << res_ave << endl;
+	}
+	
 	result.close();
 	jack_txt.close();
 
